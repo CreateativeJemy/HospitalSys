@@ -1,0 +1,233 @@
+﻿@model IEnumerable<UserViewModel>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="content">
+    <div class="page-inner">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <h4 class="card-title">الموظفين</h4>
+                            <div class="ml-auto">
+                                <button onclick="UserAddV()" class="btn btn-primary btn-round " data-toggle="modal" data-target="#addRowModal">
+                                    <i class="fa fa-plus"></i>
+                                    اضافة موظف
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" id="listView">
+                        @(await Html.PartialAsync("_UserListView", Model))
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-large" role="document">
+        <div class="modal-content">
+            <div class="modal-header no-bd">
+                <h5 class="modal-title">
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="AddViewModel">
+            </div>
+            <div class="modal-footer no-bd">
+                <button type="button" onclick="event.preventDefault(); SaveUser()" class="btn btn-primary">حفظ</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">اغلاق</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-large" role="document">
+        <div class="modal-content">
+            <div class="modal-header no-bd">
+                <h5 class="modal-title">
+                    تفاصيل المستخدم
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <dl>
+                    <dt>اسم المستخدم
+                    <dd>محمد</dd>
+                    </dt>
+                    <dt>البريد الالكترونى
+                    <dd>mohamed@gmail.com</dd>
+                    </dt>
+                    <dt>البلد
+                    <dd>مصر</dd>
+                    </dt>
+                    <dt>المدينة
+                    <dd>الاسكندرية</dd>
+                    </dt>
+                    <dt>المنطقة
+                    <dd>سموحة</dd>
+                    </dt>
+                    <dt>رقم الهاتف
+                    <dd>01009516583</dd>
+                    </dt>
+                </dl>
+            </div>
+            <div class="modal-footer no-bd">
+
+                <button type="button" class="btn btn-danger" data-dismiss="modal">اغلق</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        function UsersListView() {
+            $("#listView").empty();
+            $.ajax({
+                type: "GET",
+                url: "/Employees/UsersList",
+                success: function (data) {
+                    $("#listView").empty();
+                    $("#listView").append(data);
+                    SetDataTable();
+                },
+            });
+        }
+        function UserAddV() {
+            debugger;
+            $(".mod-title").text('');
+            $(".mod-title").text('اضافة');
+            $("#AddViewModel").empty();
+            $.ajax({
+                type: "GET",
+                url: "/Employees/UsersAdd",
+                success: function (data) {
+                    $("#AddViewModel").empty();
+                    $("#AddViewModel").append(data);
+                },
+            });
+        }
+        function GetSensCheckedPatientTypes(id) {
+            debugger;
+            $.ajax({
+                type: "Get",
+                url: "/Employees/CheckPatientTypesMultiS?id=" + id,
+                cache: false,
+                success: function (result) {
+                    debugger;
+                    if (result.data != null) {
+                        $.each(result.data, function (i, e) {
+                            $("#PatientType option[value='" + e + "']").prop("selected", true);
+                            $("#PatientType option[value='" + e + "']").prop("selected", true);
+                            $("#PatientType option[value='" + e + "']").prop("selected", true);
+                        });
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+        function EditView(id) {
+            debugger;
+            $(".mod-title").text('');
+            $(".mod-title").text('تعديل')
+            $("#AddViewModel").empty();
+            $.ajax({
+                type: "GET",
+                url: "/Employees/UsersEdit",
+                data: { userId: id },
+                cache: false,
+                success: function (data) {
+                    $("#AddViewModel").empty();
+                    $("#AddViewModel").append(data);
+                    GetSensCheckedPatientTypes(id);
+                },
+            });
+        }
+        var valid = true;
+        function checkName() {
+            var statusVal = $("#NameEn").val();
+            if (statusVal == "") {
+                $("#Nameenerror").css("display", "block");
+                $("#Nameenerror").css("color", "red");
+                valid = false;
+            }
+            else {
+                $("#Nameenerror").css("display", "none");
+                $("#Nameenerror").css("color", "red");
+                valid = true;
+            }
+        }
+        function checkNameAr() {
+            var statusVal = $("#NameAr").val();
+            if (statusVal == "") {
+                $("#Namearerror").css("display", "block");
+                $("#Namearerror").css("color", "red");
+                valid = false;
+            }
+            else {
+                $("#Namearerror").css("display", "none");
+                $("#Namearerror").css("color", "red");
+                valid = true;
+            }
+        }
+        function SaveUser() {
+            debugger;
+            valid = true;
+            $(".error").hide();
+            checkName();
+            if (valid == false) { return false;}
+            if (valid) {
+                var id = $("#Id").val();
+                debugger;
+                var PatientTypes = $("#PatientType").val();
+                $("#PatientTypes").val(PatientTypes);
+                var data = $("#SubmitUserForm").serialize();
+                if (id == "") {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Employees/UsersAdd",
+                        data: data,
+                        cache: false,
+                        success: function (data) {
+                            swal('تم الاضافة بنجاح');
+                            $("#addRowModal").modal("hide");
+                            $("input[type=text], input[type=file],input[type=email], textarea").val("");
+                            UsersListView();
+                        },
+                        error: function (data) {
+                            swal("Your message hase been sent");
+                        }
+                    });
+                }
+                else {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Employees/UsersEdit",
+                        data: data,
+                        cache: false,
+                        success: function (data) {
+                            swal('تم التعديل بنجاح');
+                            $("#addRowModal").modal("hide");
+                            $("input[type=text], input[type=file],input[type=email], textarea").val("");
+                            UsersListView();
+                        },
+                        error: function (data) {
+                            swal("Your message hase been sent");
+                        }
+                    });
+                }
+                }
+        }
+    </script>
+}
+

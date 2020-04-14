@@ -1,0 +1,37 @@
+﻿@model IEnumerable<UserViewModel>
+<div class="table-responsive">
+    <table id="add-row" class="display table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>الاسم الاول</th>
+                <th>الاسم الاخير</th>
+                <th>اسم الموظف</th>
+                <th>الايميل</th>
+                <th>الموبايل</th>
+                <th>انواع المرضى</th>
+                <th style="width: 10%"></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+                <tr id="tr-@item.Id">
+                    <td>@item.FirstName</td>
+                    <td>@item.LastName</td>
+                    <td>@item.UserName</td>
+                    <td>@item.Email</td>
+                    <td>@item.Phone</td>
+                    <td>@item.PatientTypes</td>
+                    <td>
+                        <div class="form-button-action">
+                            <button type="button" title="" onclick="EditView('@item.Id')" class="btn btn-link btn-primary btn-lg" data-original-title="Edit " data-toggle="modal" data-target="#addRowModal">
+                                <i class="fa fa-edit"></i> تعديل
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,55 @@
+﻿@model IEnumerable<LoggerViewModel>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="page-inner">
+    <div class="page-header">
+        <h4 class="page-title">السجل</h4>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="add-row" class="display table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>الموظف</th>
+                                    <th>العملية</th>
+                                    <th>العنوان المحلى</th>
+                                    <th>التاريخ</th>
+                                    <th>حالة العملية</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>#</th>
+                                    <th>الموظف</th>
+                                    <th>العملية</th>
+                                    <th>العنوان المحلى</th>
+                                    <th>التاريخ</th>
+                                    <th>حالة العملية</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.Id</td>
+                                        <td>@item.UserName</td>
+                                        <td>@item.Action</td>
+                                        <td>@item.LocalIp</td>
+                                        <td>@item.Date.ToString("MM/dd/yyyy hh:mm tt")</td>
+                                        <td>@item.LoginStatus</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,242 @@
+﻿@model PatientViewModel
+@{
+    int id = 0;
+}
+<script src="https://cdn.rawgit.com/t4t5/sweetalert/v0.2.0/lib/sweet-alert.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css" rel="stylesheet" type="text/css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js"></script> 
+
+<script>
+    $(document).ready(function () {
+        $(function () {
+            $("#datepickerClass").datepicker({
+                autoclose: true,
+                todayHighlight: true
+            }).datepicker('update', new Date());
+        });
+        //
+        var id = $("#Desisnum").val();
+        $('.addrow').click(function () {
+            $('#db tbody').append('<tr id="tr-' + id + '">' +
+                '<td>الاسم عربى<input type="text" class="nameAr form-control" id="nameAr-' + id + '"/>' +
+                'الاسم انجليزى<input type="text" class="nameEn form-control" id="nameEn-' + id + '"/></td>' +
+                '<td>مزمن <input type="checkbox" class="chronic form-control" id="chronic-' + id + '" name="chronic-' + id + '"/>' +
+                'وراثى <input type="checkbox" class="inhirtance form-control" id="inhirtance-' + id + '" name="inhirtance-' + id + '"/>' +
+                'معدى <input type="checkbox" class="Infected form-control" id="infected-' + id + '" name="infected-' + id + '" /></td >' +
+                '<td> <input type="text" class="doctorName form-control" id="doctorName-' + id + '"/></td>' +
+                '<td><input type="text" class="department form-control" id="department-' + id + '"/></td>' +
+                '<td><input type="text" class="diagnose form-control" id="diagnose-' + id + '"/></td>' +
+                '<td>تاريخ الدخول <input type="date" class="enterDate form-control" id="enterDate-' + id + '"/>' +
+                'تاريخ الخروج <input type="date" class="outDate form-control" id="outDate-' + id + '" /></td ><td>' +
+                '<button class="btn btn-danger btn-fab delete-row"><i class="material-icons text-white">حذف</i></button>' +
+                '</td></tr>');
+            id = parseInt(id + 1);
+            $("#Desisnum").val(id);
+        });
+        $("#PatientHistory").change(function () {
+            if ($(this).is(":checked")) {
+                $("#PatientHistoryList").css("display", "block");
+            }
+            else {
+                $("#PatientHistoryList").css("display", "none");
+            }
+        });
+    });
+    $(document).on("click", ".delete-row", function (event) {
+        event.preventDefault();
+        var rowToDel = $(this);
+        var id = $(this).attr("id");
+        debugger;
+        if (id == undefined) {
+            $(this).closest('tr').remove();
+        }
+        else {
+            swal({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                type: 'warning',
+                buttons: {
+                    confirm: {
+                        text: 'Yes, delete it!',
+                        className: 'btn btn-success'
+                    },
+                    cancel: {
+                        visible: true,
+                        className: 'btn btn-danger'
+                    }
+                }
+            }).then((Delete) => {
+                if (Delete) {
+                    $.ajax({
+                        type: "Post",
+                        data: { id: id },
+                        url: "/Patient/DeleteDises",
+                        success: function (data) {
+                            rowToDel.closest('tr').remove();
+                            swal("Deleted!", "Your imaginary file has been deleted!", "success");
+                        },
+                    });
+                }
+                else {
+                    swal.close();
+                }
+            });
+        }
+    });
+</script>
+<form id="SaveForm" name="SaveForm" enctype="multipart/form-data">
+    <fieldset>
+        <div class="row">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="DesisString" />
+            <input type="hidden" asp-for="FileNumber" />
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="NameEn">الاسم انجليزى</label>
+                    <input type="text" onchange="checkName()" class="form-control" asp-for="NameEn">
+                </div>
+                <span id="Nameenerror" class="error errorClass" style="display:none">مطلوب</span>
+            </div>
+            <div class="col-md-6">
+
+                <div class="form-group">
+                    <label for="NameAr">الاسم عربى</label>
+                    <input type="text" onchange="checkNameAr()" class="form-control" asp-for="NameAr">
+                </div>
+                <span id="Namearerror" class="error errorClass" style="display:none">مطلوب</span>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="NameAr">الجنسية</label>
+                    @if (Model.Id == 0)
+                    {
+                        <input type="text" class='form-control' asp-for="Nationality">
+                    }
+                    else
+                    {
+                        <input type="text" disabled class='form-control' asp-for="Nationality">
+                    }
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="NameEn">الجنس</label>
+                    @if (Model.Id == 0)
+                    {
+                        <select class='form-control' asp-for="MFemaleType" asp-items="Html.GetEnumSelectList(typeof(MFemaleType))"></select>
+                    }
+                    else
+                    {
+                        <select class='form-control' disabled asp-for="MFemaleType" asp-items="Html.GetEnumSelectList(typeof(MFemaleType))"></select>
+                    }
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="NameEn">نوع العلاج</label>
+                    <select class="form-control" asp-for="PatientType" asp-items="Html.GetEnumSelectList(typeof(PatientType))"></select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="NameAr">رقم الموبايل</label>
+                    <input type="text" onchange="checkPhone()" class="form-control" asp-for="Phone">
+                </div>
+                <span id="errorPhone" class="error errorClass" style="display:none"></span>
+            </div>
+            <div class="col-md-6">
+
+                <div class="form-group">
+                    <label for="NameAr">رقم تليفون المنزل</label>
+                    <input type="text" class="form-control" asp-for="TelPhone">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="NameAr">صورة البطاقة</label>
+                    @if (Model.Image != null)
+                    {
+                        <img src="/@Model.Image" class="img-circle rounded-circle" width="250" height="300" />
+                    }
+                    <input type="file" class="form-control" asp-for="FileSource" placeholder="">
+                </div>
+                <span id="Namearerror" class="error errorClass" style="display:none"></span>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect">سجل مرض</label>
+                        <input asp-for="PatientHistory" type="checkbox" />
+                    </div>
+                </div>
+                <div class='col-md-12 form-group' id="PatientHistoryList" style='display:@(Model.PatientHistory == true ?"block":"none")'>
+                    <label>اضف تفاصيل المرض</label>
+                    <button class="btn btn-large btn-primary addrow" type="button">+</button>
+                    <div class="table-responsive">
+                        @if (Model.PatientDesises != null)
+                        {
+                            <input type="hidden" id="Desisnum" value="@id" />
+                            <table class="table table-striped mt-3" id="db">
+                                <thead>
+                                    <tr>
+                                        <th>الاسم عربى  / الاسم انجليزى </th>
+                                        <th>نوع المرض</th>
+                                        <th>الطبيب</th>
+                                        <th>القسم</th>
+                                        <th>التشخيص</th>
+                                        <th> تاربخ الدخول / الخروج  </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyy">
+                                    @foreach (var item in Model.PatientDesises)
+                                    {
+
+                                        <tr id="tr-@item.Id">
+                                            <td>
+                                                الاسم عربى<input type="text" class="nameAr form-control" value="@item.NameAr" id="EdnameAr-@item.Id" />
+                                                الاسم انجليزى<input type="text" class="nameEn form-control" value="@item.NameEn" id="EdnameEn-@item.Id" />
+                                            </td>
+                                            <td>
+                                                مزمن <input type="checkbox" class="chronic form-control" id="Edchronic-@item.Id" checked="@item.Chronic" />
+                                                وراثى <input type="checkbox" class="inhirtance form-control" id="Edinhirtance-@item.Id" checked="@item.Inhirtance" />
+                                                معدى <input type="checkbox" class="Infected form-control" id="Edinfected-@item.Id" checked="@item.Infected" />
+                                            </td>
+                                            <td> <input type="text" class="doctorName form-control" value="@item.DoctorName" id="EddoctorName-@item.Id" /></td>
+                                            <td><input type="text" class="department form-control" value="@item.Department" id="Eddepartment-@item.Id" /></td>
+                                            <td><input type="text" class="diagnose form-control" value="@item.Diagnose" id="Eddiagnose-@item.Id" /></td>
+                                            <td>
+                                                تاريخ الدخول <input type="text" class="form-control" readonly value="@item.EnterDate" id="EdenterDate-@item.Id" />
+                                                تاريخ الخروج <input type="text" class="form-control" readonly value="@item.OutDate" id="EdoutDate-@item.Id" />
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-danger btn-fab delete-row" id="@item.Id"><i class="material-icons text-white">حذف</i></button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <input type="hidden" id="Desisnum" value="@id" />
+                            <table class="table table-striped mt-3" id="db">
+                                <thead>
+                                    <tr>
+                                        <th>الاسم عربى  / الاسم انجليزى </th>
+                                        <th>نوع المرض</th>
+                                        <th>الطبيب</th>
+                                        <th>القسم</th>
+                                        <th>التشخيص</th>
+                                        <th> تاربخ الدخول / الخروج  </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyy"></tbody>
+                            </table>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <div class="clearfix"></div>
+</form>

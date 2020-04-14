@@ -1,0 +1,50 @@
+﻿@model UserViewModel
+<form id="form">
+    <fieldset id="SubmitUserForm">
+        <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <label>الاسم الاول</label>
+            <input asp-for="FirstName" class="form-control" placeholder="الاسم الاول" />
+        </div>
+        <div class="form-group">
+            <label>الاسم الاخير</label>
+            <input asp-for="LastName" class="form-control" placeholder="الاسم الاخير" />
+        </div>
+        <div class="form-group">
+            <label>رقم الموبايل</label>
+            <input asp-for="Phone" class="form-control" placeholder="رقم الموبايل" />
+            <span class="messagePhone error" style="display:none">هذا العنصر مطلوب</span>
+        </div>
+
+        <div class="form-group">
+            <label>اسم الموظف</label>
+            <input asp-for="UserName" class="form-control" placeholder="اسم الموظف" />
+            <span class="messageUserName error" style="display:none">هذا العنصر مطلوب</span>
+        </div>
+        @if (string.IsNullOrEmpty(Model.Id))
+        {
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input asp-for="Password" class="form-control" placeholder="كلمة المرور" />
+                <span class="messagePassword error" style="display:none">هذا العنصر مطلوب</span>
+            </div>
+        }
+        <div class="form-group">
+            <label>البريد الاليكترونى</label>
+            <input asp-for="Email" class="form-control" placeholder="البريد الاليكترونى" />
+            <span class="messageEmail error" style="display:none">هذا العنصر مطلوب</span>
+        </div>
+        <fieldset class="mt-2">
+            <input type="hidden" asp-for="PatientTypes" />
+            <legend>انواع المرضى المسموح التعديل</legend>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-0">
+                        <label class="my-0">انواع العلاج</label>
+                        <select multiple asp-for="PatientType" asp-items="Html.GetEnumSelectList(typeof(PatientType))" class="form-control selectStyle"></select>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </fieldset>
+</form>

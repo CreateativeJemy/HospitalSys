@@ -1,0 +1,264 @@
+﻿@model IEnumerable<PatientViewModel>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="content">
+    <div class="page-inner">
+        <div class="page-header">
+            <h4 class="page-title">المرضى</h4>
+            @ViewBag.TimeNow
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <button onclick="PatientAddV()" class="btn btn-primary btn-round ml-auto" data-toggle="modal" data-target="#addRowModal">
+                                <i class="fa fa-plus"></i> اضافة مريض
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body" id="listView">
+                        @(await Html.PartialAsync("_PatientListView", Model))
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-large" style="max-width:1200px" role="document">
+        <div class="modal-content">
+            <div class="modal-header no-bd">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="AddViewModel">
+            </div>
+            <div class="modal-footer no-bd">
+                <button type="button" id="btnSave" onclick="event.preventDefault(); SavePatient()" class="btn btn-primary">حفظ</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">اغلاق</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="https://cdn.rawgit.com/t4t5/sweetalert/v0.2.0/lib/sweet-alert.min.js"></script>
+    <script>
+        function PatientsListView() {
+            $("#listView").empty();
+            $.ajax({
+                type: "GET",
+                url: "/Patient/PatientsList",
+                success: function (data) {
+                    $("#listView").empty();
+                    $("#listView").append(data);
+                    SetDataTable();
+                },
+            });
+        }
+        function PatientAddV() {
+            debugger;
+            $(".mod-title").text('اضافة');
+            $("#AddViewModel").empty();
+            $.ajax({
+                type: "GET",
+                url: "/Patient/PatientsAdd",
+                success: function (data) {
+                    $("#AddViewModel").empty();
+                    $("#AddViewModel").append(data);
+                    $("#btnSave").css("display", "block");
+                },
+            });
+        }
+        function EditView(id) {
+            debugger;
+            $(".mod-title").text('تعديل')
+            $("#AddViewModel").empty();
+            $.ajax({
+                type: "GET",
+                url: "/Patient/PatientsEdit",
+                data: { id: id },
+                cache: false,
+                success: function (data) {
+                    if (data.isSuccess == false) {
+                        $("#AddViewModel").empty();
+                        $("#AddViewModel").append("<p class='center'>لا تملك حق التعديل</p>");
+                        $("#btnSave").css("display", "none");
+                    } else {
+                        $("#AddViewModel").empty();
+                        $("#AddViewModel").append(data);
+                        $("#btnSave").css("display", "block");
+
+                    }
+                },
+            });
+        }
+        function DetailView(id) {
+            debugger;
+            $("#DetailViewModel").empty();
+            $.ajax({
+                type: "GET",
+                url: "/Patient/PatientsDetail",
+                data: { id: id },
+                cache: false,
+                success: function (data) {
+                    $("#DetailViewModel").empty();
+                    $("#DetailViewModel").append(data);
+                },
+            });
+        }
+        var valid = true;
+        function checkName() {
+            var statusVal = $("#NameEn").val();
+            if (statusVal == "") {
+                $("#Nameenerror").css("display", "block");
+                $("#Nameenerror").css("color", "red");
+                valid = false;
+            }
+            else {
+                $("#Nameenerror").css("display", "none");
+                $("#Nameenerror").css("color", "red");
+                valid = true;
+            }
+        }
+        function checkNameAr() {
+            var statusVal = $("#NameAr").val();
+            if (statusVal == "") {
+                $("#Namearerror").css("display", "block");
+                $("#Namearerror").css("color", "red");
+                valid = false;
+            }
+            else {
+                $("#Namearerror").css("display", "none");
+                $("#Namearerror").css("color", "red");
+                valid = true;
+            }
+        }
+        function checkPhone() {
+            debugger;
+            var phoneReg = /^\d{3}\-?\d{4}\-?\d{4}$/;
+            var phoneValue = $("#Phone").val();
+            if (phoneValue == 0 || !phoneReg.test(phoneValue)) {
+                $("#errorPhone").text("ادخل رقم الموبايل صحيح مكون من 11 رقم يبدأ ب الصفر");
+                $("#errorPhone").css("display", "block");
+                valid = false;
+            }
+            else {
+                $("#errorPhone").text("");
+                $("#errorPhone").css("display", "none");
+                valid = true;
+            }
+        }
+        function SavePatient() {
+            debugger;
+            valid = true;
+            $(".error").hide();
+            checkName();
+            if (valid == false) { return false;}
+            checkNameAr();
+            if (valid == false) { return false; }
+            if (valid) {
+                var id = $("#Id").val();
+                //
+                var desisnum = $("#Desisnum").val();
+                var desisArray = [];
+                
+                for (var i = 0; i < desisnum; i++) {
+                    var nameAr = $("#nameAr-" + i).val();
+                    var nameEn = $("#nameEn-" + i).val();
+                    debugger;
+                    if ($("#chronic-" + i).is(":checked")) {
+                        chronic = "true";
+                    }
+                    else {
+                        chronic= "false";
+                    }
+                    if ($("#inhirtance-" + i).is(":checked")) {
+                        inhirtance = "true";
+                    }
+                    else {
+                        inhirtance= "false";
+                    }
+                    if ($("#infected-" + i).is(":checked")) {
+                        infected = "true";
+                    }
+                    else {
+                        infected= "false";
+                    }
+                    var doctorName = $("#doctorName-" + i).val();
+                    var department = $("#department-" + i).val();
+                    var diagnose = $("#diagnose-" + i).val();
+                    var enterDate = $("#enterDate-" + i).val();
+                    var outDate = $("#outDate-" + i).val();
+                    var model = {
+                        nameAr: nameAr,
+                        nameEn: nameEn,
+                        chronic: chronic,
+                        inhirtance: inhirtance,
+                        infected: infected,
+                        doctorName: doctorName,
+                        department: department,
+                        diagnose: diagnose,
+                        enterDate: enterDate,
+                        outDate: outDate,
+                    };
+                    debugger;
+                    if (nameAr != null && nameAr != "") {
+                        desisArray.push(model);
+                    }
+                }
+                var desisString = JSON.stringify(desisArray);
+                $("#DesisString").val(desisString);
+                //
+                var fileuploadUrl = $("#FileSource").get(0);
+                var filesUrl = fileuploadUrl.files;
+                var data = new FormData(SaveForm);
+                for (var i = 0; i < filesUrl.length; i++) {
+                    data.append(filesUrl[i].name, filesUrl[i]);
+                }
+                if (id == 0) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Patient/PatientsAdd",
+                        data: data,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            swal('تم الاضافة بنجاح');
+                            $("#addRowModal").modal("hide");
+                            $("input[type=text], input[type=file],input[type=email], textarea").val("");
+                            PatientsListView();
+                        },
+                        error: function (data) {
+                            //swal("Your message hase been sent");
+                        }
+                    });
+                }
+                else {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Patient/PatientsEdit",
+                        data: data,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            swal('تم التعديل بتجاح');
+                            $("#addRowModal").modal("hide");
+                            $("input[type=text], input[type=file],input[type=email], textarea").val("");
+                            PatientsListView();
+                        },
+                        error: function (data) {
+                            //swal("Your message hase been sent");
+                        }
+                    });
+                }
+                }
+        }
+    </script>
+}

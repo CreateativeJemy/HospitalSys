@@ -1,0 +1,54 @@
+﻿@model IEnumerable<PatientViewModel>
+@using HospitalSys.App_Code
+<div class="table-responsive">
+    <table id="add-row" class="datatable display table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>رقم المريض</th>
+                <th>الاسم عربى </th>
+                <th>الاسم انجليزى</th>
+                <th>الحنسية</th>
+                <th>الحنس</th>
+                <th>توع العلاج</th>
+                <th>رقم التليفون</th>
+                <th>تاريخ</th>
+                <th style="width: 10%"></th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>رقم المريض</th>
+                <th>الاسم عربى </th>
+                <th>الاسم انجليزى</th>
+                <th>الحنسية</th>
+                <th>الحنس</th>
+                <th>توع العلاج</th>
+                <th>رقم التليفون</th>
+                <th>تاريخ</th>
+                <th style="width: 10%"></th>
+            </tr>
+        </tfoot>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.FileNumber</td>
+                    <td>@item.NameAr</td>
+                    <td>@item.NameEn</td>
+                    <td>@item.Nationality</td>
+                    <td>@item.MFemaleType.ToName()</td>
+                    <td>@item.PatientType.ToName()</td>
+                    <td>@item.Phone</td>
+                    <td>@item.CreateDate.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <div class="form-button-action">
+                            <button onclick="EditView(@item.Id)" type="button" data-toggle="modal" data-target="#addRowModal" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit ">
+                                <i class="fa fa-edit"></i>تعديل
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
